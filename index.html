@@ -1,0 +1,1162 @@
+<!DOCTYPE html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Surat Hati Untukmu</title>
+    <style>
+      /* --- FONTS & PALETTE --- */
+      @import url("https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700&family=Parisienne&family=Quicksand:wght@300;400;500&family=Great+Vibes&display=swap");
+
+      :root {
+        /* Palette: Pastel Pink, Blush Rose, Warm Peach, Soft White, Gold */
+        --bg-gradient-start: #ffe6ea;
+        --bg-gradient-end: #ffd1d6;
+        --primary-pink: #ffadc4;
+        --deep-rose: #d66d8e;
+        --peach-accent: #ffdab9;
+        --text-main: #6b3e4e;
+        --gold-accent: #d4af37;
+        --gold-shimmer: #f8e58c;
+        --paper-bg: #fffbf0;
+        --shadow-soft: 0 15px 35px rgba(214, 109, 142, 0.15);
+
+        /* Envelope Specifics */
+        --envelope-color: #ffdde1;
+        --envelope-flap: #ffc4cb;
+        --envelope-shadow: rgba(214, 93, 177, 0.3);
+      }
+
+      /* --- RESET --- */
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        background: linear-gradient(
+          180deg,
+          var(--bg-gradient-start),
+          var(--bg-gradient-end)
+        );
+        font-family: "Quicksand", sans-serif;
+        color: var(--text-main);
+        overflow-x: hidden;
+        min-height: 100vh;
+        perspective: 1px; /* For Parallax */
+      }
+
+      /* --- CANVAS BACKGROUND --- */
+      #particle-canvas {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: 0;
+        pointer-events: none;
+      }
+
+      /* --- INTRO OVERLAY (ENVELOPE) --- */
+      #intro-overlay {
+        position: fixed;
+        inset: 0;
+        background: radial-gradient(circle at center, #fff0f5 0%, #ffdde1 100%);
+        z-index: 2000;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        transition: opacity 1.2s ease, visibility 1.2s;
+      }
+
+      .envelope-container {
+        position: relative;
+        cursor: pointer;
+        transition: transform 0.3s ease;
+        margin-top: -50px;
+      }
+
+      .envelope-container:hover {
+        transform: scale(1.05);
+      }
+
+      .envelope {
+        width: 300px;
+        height: 200px;
+        background: var(--envelope-color);
+        position: relative;
+        border-radius: 0 0 10px 10px;
+        box-shadow: 0 10px 30px var(--envelope-shadow);
+        display: flex;
+        justify-content: center;
+        overflow: visible;
+      }
+
+      /* The folded parts of the envelope body */
+      .envelope::before {
+        content: "";
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 0;
+        height: 0;
+        border-style: solid;
+        border-width: 100px 0 100px 150px;
+        border-color: transparent transparent transparent #ffaab9;
+        opacity: 0.5;
+        border-radius: 0 0 0 10px;
+        pointer-events: none;
+      }
+
+      .envelope::after {
+        content: "";
+        position: absolute;
+        bottom: 0;
+        right: 0;
+        width: 0;
+        height: 0;
+        border-style: solid;
+        border-width: 100px 150px 100px 0;
+        border-color: transparent #ff97a8 transparent transparent;
+        opacity: 0.5;
+        border-radius: 0 0 10px 0;
+        pointer-events: none;
+      }
+
+      /* The bottom fold */
+      .envelope-bottom {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 0;
+        height: 0;
+        border-style: solid;
+        border-width: 0 150px 110px 150px;
+        border-color: transparent transparent #ff8fa3 transparent;
+        z-index: 2;
+        opacity: 0.3;
+        border-radius: 0 0 10px 10px;
+        pointer-events: none;
+      }
+
+      /* The Flap */
+      .flap {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 0;
+        height: 0;
+        border-style: solid;
+        border-width: 110px 150px 0 150px;
+        border-color: var(--envelope-flap) transparent transparent transparent;
+        transform-origin: top;
+        transition: transform 0.8s ease-in-out, z-index 0.6s;
+        z-index: 5;
+        border-radius: 5px 5px 0 0;
+      }
+
+      /* Open state for flap */
+      .envelope.open .flap {
+        transform: rotateX(180deg);
+        z-index: 1;
+      }
+
+      /* Heart Seal */
+      .seal {
+        position: absolute;
+        top: -55px;
+        left: 50%;
+        transform: translateX(-50%);
+        font-size: 2.5rem;
+        color: var(--deep-rose);
+        text-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        z-index: 6;
+        transition: opacity 0.5s ease;
+      }
+
+      .envelope.open .seal {
+        opacity: 0;
+      }
+
+      .click-hint {
+        margin-top: 3rem;
+        font-family: "Cinzel Decorative", cursive;
+        color: var(--deep-rose);
+        font-size: 1.2rem;
+        letter-spacing: 2px;
+        animation: pulse 2s infinite;
+      }
+
+      /* --- MAIN LAYOUT --- */
+      .container {
+        max-width: 900px;
+        margin: 0 auto;
+        padding: 4rem 2rem;
+        position: relative;
+        z-index: 10;
+      }
+
+      header {
+        text-align: center;
+        margin-bottom: 4rem;
+        opacity: 0; /* Animated in via JS */
+        transform: translateY(20px);
+        transition: all 1.5s ease;
+      }
+
+      header.visible {
+        opacity: 1;
+        transform: translateY(0);
+      }
+
+      h1 {
+        font-family: "Parisienne", cursive;
+        font-size: 4.5rem;
+        background: linear-gradient(
+          to right,
+          var(--deep-rose),
+          var(--gold-accent)
+        );
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.05);
+        margin-bottom: 0.5rem;
+      }
+
+      /* --- THE SCROLL (Love Letter) --- */
+      .scroll-wrapper {
+        position: relative;
+        width: 100%;
+        max-width: 700px;
+        margin: 0 auto 6rem;
+        perspective: 1000px;
+      }
+
+      /* Top Roll of the Scroll */
+      .scroll-top {
+        height: 40px;
+        background: linear-gradient(to right, #e6c8a0, #f8e58c, #e6c8a0);
+        border-radius: 20px;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        position: relative;
+        z-index: 20;
+      }
+
+      /* The Paper Body */
+      .scroll-body {
+        background: var(--paper-bg);
+        /* Subtle texture */
+        background-image: url("data:image/svg+xml,%3Csvg width='20' height='20' viewBox='0 0 20 20' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23d66d8e' fill-opacity='0.03' fill-rule='evenodd'%3E%3Ccircle cx='3' cy='3' r='3'/%3E%3Ccircle cx='13' cy='13' r='3'/%3E%3C/g%3E%3C/svg%3E");
+        width: 90%;
+        margin: -20px auto 0; /* Tuck under top roll */
+        padding: 3rem 4rem;
+        box-shadow: 0 0 30px rgba(0, 0, 0, 0.1);
+        border-left: 2px solid rgba(212, 175, 55, 0.3);
+        border-right: 2px solid rgba(212, 175, 55, 0.3);
+
+        /* Unroll Animation Setup */
+        height: 0;
+        opacity: 0;
+        overflow: hidden;
+        transform-origin: top;
+        transition: height 2.5s cubic-bezier(0.25, 1, 0.5, 1), opacity 1s ease;
+      }
+
+      .scroll-body.unrolled {
+        height: auto; /* Fallback */
+        min-height: 500px; /* Adjust based on content */
+        opacity: 1;
+      }
+
+      /* Bottom Roll */
+      .scroll-bottom {
+        height: 40px;
+        width: 100%;
+        background: linear-gradient(to right, #e6c8a0, #f8e58c, #e6c8a0);
+        border-radius: 20px;
+        box-shadow: 0 -5px 15px rgba(0, 0, 0, 0.1);
+        position: relative;
+        z-index: 20;
+        margin-top: -20px; /* Tuck over bottom of paper */
+
+        /* Animation for moving down */
+        transform: translateY(-100%);
+        opacity: 0;
+        transition: transform 2.5s cubic-bezier(0.25, 1, 0.5, 1),
+          opacity 0.5s ease;
+      }
+
+      .scroll-wrapper.active .scroll-bottom {
+        transform: translateY(0);
+        opacity: 1;
+      }
+
+      /* Letter Content Typography */
+      .letter-text {
+        font-family: "Quicksand", sans-serif;
+        font-size: 1.25rem;
+        line-height: 2;
+        color: var(--text-main);
+      }
+
+      .letter-text p {
+        min-height: 1.5em; /* Prevent jump */
+        margin-bottom: 1.5rem;
+      }
+
+      /* Typewriter Cursor */
+      .cursor {
+        display: inline-block;
+        width: 2px;
+        height: 1.2em;
+        background-color: var(--deep-rose);
+        animation: blink 0.8s infinite;
+        vertical-align: middle;
+      }
+
+      /* --- MINI GAME SECTION --- */
+      .game-section {
+        padding: 4rem 0;
+        text-align: center;
+        position: relative;
+        margin-bottom: 4rem;
+      }
+
+      .game-title {
+        font-family: "Parisienne", cursive;
+        font-size: 2.5rem;
+        color: var(--deep-rose);
+        margin-bottom: 1.5rem;
+      }
+
+      .game-container {
+        width: 100%;
+        max-width: 600px;
+        height: 400px;
+        margin: 0 auto;
+        background: rgba(255, 255, 255, 0.6);
+        backdrop-filter: blur(5px);
+        border: 2px solid var(--primary-pink);
+        border-radius: 20px;
+        position: relative;
+        overflow: hidden;
+        cursor: crosshair;
+        box-shadow: 0 10px 30px rgba(214, 109, 142, 0.1);
+      }
+
+      .game-ui {
+        position: absolute;
+        top: 20px;
+        left: 0;
+        width: 100%;
+        padding: 0 30px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        z-index: 10;
+        pointer-events: none; /* Let clicks pass through to container */
+      }
+
+      .love-meter-label {
+        font-weight: bold;
+        color: var(--deep-rose);
+        margin-bottom: 5px;
+      }
+
+      .love-meter-box {
+        width: 100%;
+        max-width: 300px;
+        height: 20px;
+        background: #fff;
+        border-radius: 10px;
+        border: 2px solid var(--deep-rose);
+        overflow: hidden;
+      }
+
+      .love-meter-fill {
+        height: 100%;
+        width: 0%;
+        background: linear-gradient(
+          90deg,
+          var(--primary-pink),
+          var(--deep-rose)
+        );
+        transition: width 0.3s cubic-bezier(0.25, 1, 0.5, 1);
+      }
+
+      .game-start-btn {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background: var(--deep-rose);
+        color: white;
+        border: none;
+        padding: 12px 30px;
+        border-radius: 50px;
+        font-family: "Quicksand", sans-serif;
+        font-weight: bold;
+        font-size: 1.1rem;
+        cursor: pointer;
+        box-shadow: 0 5px 15px rgba(214, 109, 142, 0.4);
+        z-index: 20;
+        transition: all 0.3s ease;
+      }
+
+      .game-start-btn:hover {
+        transform: translate(-50%, -50%) scale(1.1);
+        background: #e07aa0;
+      }
+
+      .falling-heart {
+        position: absolute;
+        font-size: 2rem;
+        cursor: pointer;
+        user-select: none;
+        z-index: 5;
+        animation: fall linear forwards;
+        filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
+      }
+
+      @keyframes fall {
+        to {
+          transform: translateY(450px) rotate(360deg);
+        }
+      }
+
+      /* Reward Modal */
+      .reward-overlay {
+        position: fixed;
+        inset: 0;
+        background: rgba(107, 62, 78, 0.4);
+        z-index: 2999;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.5s;
+        backdrop-filter: blur(3px);
+      }
+      .reward-overlay.active {
+        opacity: 1;
+        pointer-events: auto;
+      }
+
+      .reward-modal {
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%) scale(0.8);
+        background: #fff;
+        padding: 3rem;
+        border-radius: 20px;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        border: 4px solid var(--gold-accent);
+        text-align: center;
+        z-index: 3000;
+        opacity: 0;
+        pointer-events: none;
+        transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        max-width: 90%;
+        width: 450px;
+      }
+
+      .reward-modal.active {
+        opacity: 1;
+        transform: translate(-50%, -50%) scale(1);
+        pointer-events: auto;
+      }
+
+      .reward-quote {
+        font-family: "Parisienne", cursive;
+        font-size: 2rem;
+        color: var(--deep-rose);
+        line-height: 1.4;
+        margin-bottom: 2rem;
+      }
+
+      .close-reward-btn {
+        background: transparent;
+        border: 1px solid var(--deep-rose);
+        color: var(--deep-rose);
+        padding: 8px 20px;
+        border-radius: 20px;
+        cursor: pointer;
+        font-family: "Quicksand", sans-serif;
+        transition: all 0.3s;
+      }
+      .close-reward-btn:hover {
+        background: var(--deep-rose);
+        color: white;
+      }
+
+      /* --- PARALLAX PHOTO COLLAGE --- */
+      .collage-section {
+        position: relative;
+        padding: 4rem 0;
+        perspective: 1000px;
+        text-align: center;
+      }
+
+      .collage-grid {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 3rem;
+        padding: 2rem;
+      }
+
+      .photo-card {
+        background: #fff;
+        padding: 15px;
+        border-radius: 4px;
+        box-shadow: var(--shadow-soft);
+        transition: transform 0.4s ease, box-shadow 0.4s ease;
+        position: relative;
+        opacity: 0; /* Fade in on scroll */
+        transform: translateY(50px);
+        width: 300px;
+        max-width: 100%;
+      }
+
+      .photo-card.visible {
+        opacity: 1;
+        transform: translateY(0);
+      }
+
+      .photo-card:hover {
+        z-index: 50;
+        box-shadow: 0 20px 50px rgba(214, 109, 142, 0.3);
+      }
+
+      .photo-frame {
+        overflow: hidden;
+        position: relative;
+      }
+
+      .photo-frame img {
+        width: 100%;
+        height: 350px;
+        object-fit: cover;
+        display: block;
+        transition: transform 1.5s ease;
+      }
+
+      .photo-card:hover img {
+        transform: scale(1.1);
+      }
+
+      .caption {
+        margin-top: 15px;
+        font-family: "Parisienne", cursive;
+        font-size: 1.4rem;
+        color: var(--deep-rose);
+        text-align: center;
+        opacity: 0;
+        transform: translateY(10px);
+        transition: all 0.5s ease;
+      }
+
+      .photo-card:hover .caption {
+        opacity: 1;
+        transform: translateY(0);
+      }
+
+      /* --- BUTTONS --- */
+      .reveal-btn {
+        display: block;
+        margin: 0 auto;
+        background: linear-gradient(
+          135deg,
+          var(--deep-rose),
+          var(--primary-pink)
+        );
+        color: white;
+        border: none;
+        padding: 1rem 3rem;
+        border-radius: 50px;
+        font-family: "Quicksand", sans-serif;
+        font-weight: bold;
+        font-size: 1.1rem;
+        cursor: pointer;
+        box-shadow: 0 10px 25px rgba(214, 109, 142, 0.4);
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .reveal-btn:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 15px 30px rgba(214, 109, 142, 0.6);
+        animation: pulse-soft 1s infinite;
+      }
+
+      /* --- ANIMATIONS --- */
+      @keyframes pulse {
+        0%,
+        100% {
+          opacity: 0.5;
+          transform: scale(1);
+        }
+        50% {
+          opacity: 1;
+          transform: scale(1.05);
+        }
+      }
+
+      @keyframes fadeInUp {
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      @keyframes blink {
+        0%,
+        100% {
+          opacity: 1;
+        }
+        50% {
+          opacity: 0;
+        }
+      }
+
+      @keyframes pulse-soft {
+        0% {
+          box-shadow: 0 0 0 0 rgba(214, 109, 142, 0.7);
+        }
+        70% {
+          box-shadow: 0 0 0 15px rgba(214, 109, 142, 0);
+        }
+        100% {
+          box-shadow: 0 0 0 0 rgba(214, 109, 142, 0);
+        }
+      }
+
+      /* Media Queries */
+      @media (max-width: 768px) {
+        h1 {
+          font-size: 3rem;
+        }
+        .scroll-body {
+          padding: 2rem;
+        }
+        .game-container {
+          height: 350px;
+        }
+
+        .envelope {
+          width: 260px;
+          height: 170px;
+        }
+        .envelope::before {
+          border-width: 85px 0 85px 130px;
+        }
+        .envelope::after {
+          border-width: 85px 130px 85px 0;
+        }
+        .envelope-bottom {
+          border-width: 0 130px 95px 130px;
+        }
+        .flap {
+          border-width: 95px 130px 0 130px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Particle Canvas -->
+    <canvas id="particle-canvas"></canvas>
+
+    <!-- INTRO ENVELOPE -->
+    <div id="intro-overlay">
+      <div class="envelope-container" id="envelope">
+        <div class="envelope">
+          <div class="flap">
+            <div class="seal">♥</div>
+          </div>
+          <div class="envelope-bottom"></div>
+        </div>
+      </div>
+      <p class="click-hint">Klik untuk Membuka</p>
+    </div>
+
+    <div class="container" id="main-content" style="display: none">
+      <header>
+        <h1>Kisah Cinta Kita</h1>
+        <p
+          style="letter-spacing: 2px; color: var(--deep-rose); margin-top: 10px"
+        >
+          Selamanya & Abadi
+        </p>
+      </header>
+
+      <!-- The Scroll -->
+      <div class="scroll-wrapper" id="scroll-wrapper">
+        <div class="scroll-top"></div>
+
+        <div class="scroll-body" id="scroll-body">
+          <div class="letter-text" id="letter-content">
+            <!-- Text will be injected by Typewriter JS -->
+          </div>
+        </div>
+
+        <div class="scroll-bottom"></div>
+      </div>
+
+      <div style="text-align: center; margin-bottom: 5rem">
+        <button class="reveal-btn" id="read-letter-btn">Buka Surat</button>
+      </div>
+
+      <!-- Mini Game Section -->
+      <section class="game-section">
+        <h2 class="game-title">Tangkap Cintaku</h2>
+        <p style="margin-bottom: 2rem; color: var(--text-main)">
+          Kumpulkan 10 hati untuk membuka pesan rahasia!
+        </p>
+
+        <div class="game-container" id="game-area">
+          <div class="game-ui">
+            <div class="love-meter-label">Meteran Cinta</div>
+            <div class="love-meter-box">
+              <div class="love-meter-fill" id="love-meter"></div>
+            </div>
+          </div>
+
+          <button class="game-start-btn" id="start-game-btn">Mulai Main</button>
+        </div>
+      </section>
+
+      <!-- Parallax Gallery -->
+      <section class="collage-section">
+        <h2
+          style="
+            font-family: 'Parisienne', cursive;
+            font-size: 3rem;
+            color: var(--deep-rose);
+            text-align: center;
+            margin-bottom: 3rem;
+          "
+        >
+          Momen Indah
+        </h2>
+
+        <div class="collage-grid">
+          <!-- Photo 1 -->
+          <div class="photo-card">
+            <div class="photo-frame">
+              <img
+                src="https://images.unsplash.com/photo-1516589178581-6cd7833ae3b2?auto=format&fit=crop&w=600&q=80"
+                alt="Love"
+              />
+            </div>
+            <div class="caption">Hari pertama kita bertemu</div>
+          </div>
+
+          <!-- Photo 2 -->
+          <div class="photo-card">
+            <div class="photo-frame">
+              <img
+                src="https://images.unsplash.com/photo-1518199266791-5375a83190b7?auto=format&fit=crop&w=600&q=80"
+                alt="Love"
+              />
+            </div>
+            <div class="caption">Petualangan bersama</div>
+          </div>
+
+          <!-- Photo 3 -->
+          <div class="photo-card">
+            <div class="photo-frame">
+              <img
+                src="https://images.unsplash.com/photo-1523438885200-e635ba2c371e?auto=format&fit=crop&w=600&q=80"
+                alt="Love"
+              />
+            </div>
+            <div class="caption">Tempat ternyamanku</div>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <!-- Hidden Source Text for Typewriter -->
+    <div id="source-text" style="display: none">
+      <p>Sayangku,</p>
+      <p>
+        Sejak pertama kali kita bertemu, duniaku menjadi penuh warna yang tak
+        pernah kubayangkan sebelumnya. Kamu adalah angin sejuk di hari yang
+        panas, ketenangan di dunia yang bising, dan melodi indah yang selalu
+        didengar hatiku.
+      </p>
+      <p>
+        Setiap tawa yang kita bagi menjadi kenangan favoritku, dan setiap
+        keheningan di antara kita berbicara lebih lantang daripada kata-kata.
+        Aku sangat bersyukur memilikimu.
+      </p>
+      <p>
+        Aku berjanji akan selalu ada di sampingmu, menggenggam tanganmu saat
+        jalan terasa sulit, dan merayakan setiap kemenangan bersamamu. Kamu
+        adalah mimpi yang jadi nyata.
+      </p>
+      <p>Dengan segenap cintaku,<br />Milikmu Selamanya.</p>
+    </div>
+
+    <!-- Game Reward Modal -->
+    <div class="reward-overlay" id="reward-overlay"></div>
+    <div class="reward-modal" id="reward-modal">
+      <div
+        style="font-size: 3rem; color: var(--gold-accent); margin-bottom: 1rem"
+      >
+        ♥
+      </div>
+      <p class="reward-quote">
+        "Aku mencintaimu bukan hanya karena siapa kamu, tapi karena siapa aku
+        saat bersamamu."
+      </p>
+      <button class="close-reward-btn" id="close-reward">
+        Lanjut Mencintai
+      </button>
+    </div>
+
+    <script>
+      // --- CONFIGURATION ---
+      const PARTICLE_COUNT = 70;
+      const TYPEWRITER_SPEED = 40;
+      let isMainContentActive = false; // Flag to track state
+
+      // --- 1. PARTICLE SYSTEM ---
+      const canvas = document.getElementById("particle-canvas");
+      const ctx = canvas.getContext("2d");
+      let width, height;
+      let particles = [];
+
+      function resize() {
+        width = canvas.width = window.innerWidth;
+        height = canvas.height = window.innerHeight;
+      }
+      window.addEventListener("resize", resize);
+      resize();
+
+      class Particle {
+        constructor() {
+          this.init();
+        }
+
+        init() {
+          this.x = Math.random() * width;
+          this.y = height + Math.random() * 100;
+          this.type = Math.random() > 0.5 ? "heart" : "sparkle";
+
+          if (this.type === "heart") {
+            // Aesthetic sizing: Small, elegant, dainty.
+            this.size = Math.random() * 8 + 4;
+          } else {
+            this.size = Math.random() * 3 + 1;
+          }
+
+          this.speedY = Math.random() * 0.8 + 0.2; // Slower, more gentle
+          this.speedX = (Math.random() - 0.5) * 0.5;
+          this.opacity = Math.random() * 0.5 + 0.2;
+          this.color =
+            this.type === "heart"
+              ? `rgba(214, 109, 142, ${this.opacity})`
+              : `rgba(212, 175, 55, ${this.opacity})`;
+          this.rotation = Math.random() * 360;
+          this.rotationSpeed = (Math.random() - 0.5) * 0.02; // Slower rotation
+          this.wobble = Math.random() * Math.PI * 2;
+        }
+
+        draw() {
+          ctx.save();
+          ctx.translate(this.x, this.y);
+          ctx.rotate(this.rotation);
+          ctx.fillStyle = this.color;
+
+          if (this.type === "heart") {
+            // Perfect Symmetrical Heart Formula
+            ctx.beginPath();
+            const s = this.size;
+            // Move to top center dip
+            ctx.moveTo(0, -s / 4);
+            // Right curve to bottom tip
+            ctx.bezierCurveTo(s / 2, -s / 1.5, s, s / 3, 0, s);
+            // Left curve back to top center
+            ctx.bezierCurveTo(-s, s / 3, -s / 2, -s / 1.5, 0, -s / 4);
+            ctx.fill();
+          } else {
+            // Diamond Sparkle
+            ctx.beginPath();
+            ctx.moveTo(0, -this.size);
+            ctx.lineTo(this.size, 0);
+            ctx.lineTo(0, this.size);
+            ctx.lineTo(-this.size, 0);
+            ctx.fill();
+          }
+          ctx.restore();
+        }
+
+        update() {
+          this.x += Math.sin(this.wobble) * 0.5; // Gentle sway
+          this.wobble += 0.02;
+          this.y -= this.speedY;
+          this.opacity -= 0.0005; // Fade very slowly
+          this.rotation += this.rotationSpeed;
+
+          if (this.opacity <= 0 || this.y < -50) this.init();
+        }
+      }
+
+      function initParticles() {
+        particles = [];
+        for (let i = 0; i < PARTICLE_COUNT; i++) {
+          particles.push(new Particle());
+        }
+      }
+
+      function animateParticles() {
+        ctx.clearRect(0, 0, width, height);
+        particles.forEach((p) => {
+          p.update();
+          p.draw();
+        });
+        requestAnimationFrame(animateParticles);
+      }
+      initParticles();
+      animateParticles();
+
+      // --- 2. INTRO & TRANSITIONS ---
+      const envelope = document.getElementById("envelope");
+      const introOverlay = document.getElementById("intro-overlay");
+      const mainContent = document.getElementById("main-content");
+      const header = document.querySelector("header");
+
+      envelope.addEventListener("click", () => {
+        // 1. Open Animation
+        envelope.querySelector(".envelope").classList.toggle("open");
+        createClickBurst(window.innerWidth / 2, window.innerHeight / 2);
+
+        // 2. Transition
+        setTimeout(() => {
+          introOverlay.style.opacity = 0;
+
+          setTimeout(() => {
+            introOverlay.style.display = "none";
+            mainContent.style.display = "block";
+
+            isMainContentActive = true;
+            // Reset particles
+            initParticles();
+
+            // Trigger Entrance Animations
+            setTimeout(() => {
+              header.classList.add("visible");
+              window.addEventListener("scroll", handleParallax);
+            }, 100);
+          }, 1000);
+        }, 800);
+      });
+
+      // --- 3. SCROLL UNROLL & TYPEWRITER (FIXED) ---
+      const unrollBtn = document.getElementById("read-letter-btn");
+      const scrollWrapper = document.getElementById("scroll-wrapper");
+      const scrollBody = document.getElementById("scroll-body");
+      const letterContent = document.getElementById("letter-content");
+      const sourceText = document.getElementById("source-text").innerHTML;
+
+      let isTyping = false;
+
+      unrollBtn.addEventListener("click", () => {
+        unrollBtn.style.opacity = 0;
+        setTimeout(() => (unrollBtn.style.display = "none"), 500);
+
+        scrollWrapper.classList.add("active");
+        scrollBody.classList.add("unrolled");
+
+        setTimeout(() => {
+          if (!isTyping) typeWriterEffect(letterContent, sourceText);
+        }, 1000);
+      });
+
+      function typeWriterEffect(element, htmlContent) {
+        isTyping = true;
+        element.innerHTML = '<span class="cursor"></span>'; // Start with cursor only
+
+        // Regex to match HTML tags OR single characters (including whitespace/newlines)
+        // Matches: <...tag...> OR . (any char) OR [\n\r]
+        const tokens = htmlContent.match(/<[^>]+>|[^<]/g);
+
+        let tokenIndex = 0;
+
+        function type() {
+          if (tokenIndex < tokens.length) {
+            const token = tokens[tokenIndex];
+            const cursor = element.querySelector(".cursor");
+
+            if (token.startsWith("<")) {
+              // Insert HTML tag instantly (invisible action)
+              cursor.insertAdjacentHTML("beforebegin", token);
+              tokenIndex++;
+              // Immediate recursion to process next token without delay if it's a tag
+              type();
+            } else {
+              // Type regular text character
+              cursor.insertAdjacentText("beforebegin", token);
+              tokenIndex++;
+              // Random typing delay for realism
+              const delay = Math.random() * 20 + 20;
+              setTimeout(type, delay);
+            }
+          }
+        }
+        type();
+      }
+
+      // --- 4. MINI GAME LOGIC ---
+      const gameArea = document.getElementById("game-area");
+      const startGameBtn = document.getElementById("start-game-btn");
+      const loveMeter = document.getElementById("love-meter");
+      const rewardOverlay = document.getElementById("reward-overlay");
+      const rewardModal = document.getElementById("reward-modal");
+      const closeRewardBtn = document.getElementById("close-reward");
+
+      let gameScore = 0;
+      let gameInterval;
+      const TARGET_SCORE = 10;
+      let isGameRunning = false;
+
+      startGameBtn.addEventListener("click", startGame);
+
+      function startGame() {
+        if (isGameRunning) return;
+        isGameRunning = true;
+        gameScore = 0;
+        updateMeter();
+        startGameBtn.style.display = "none";
+
+        gameInterval = setInterval(spawnGameHeart, 800);
+      }
+
+      function spawnGameHeart() {
+        const heart = document.createElement("div");
+        heart.classList.add("falling-heart");
+        heart.innerText = ["❤️", "💖", "💗", "💕"][
+          Math.floor(Math.random() * 4)
+        ];
+
+        const maxLeft = gameArea.clientWidth - 40;
+        heart.style.left = Math.random() * maxLeft + "px";
+        heart.style.top = "-50px";
+
+        const duration = Math.random() * 2 + 3;
+        heart.style.animationDuration = duration + "s";
+
+        heart.addEventListener("mousedown", () => catchHeart(heart));
+        heart.addEventListener("animationend", () => heart.remove());
+
+        gameArea.appendChild(heart);
+      }
+
+      function catchHeart(element) {
+        element.style.transform = "scale(1.5)";
+        element.style.opacity = "0";
+
+        gameScore++;
+        updateMeter();
+        createClickBurst(
+          element.getBoundingClientRect().left,
+          element.getBoundingClientRect().top
+        );
+
+        setTimeout(() => element.remove(), 200);
+
+        if (gameScore >= TARGET_SCORE) {
+          winGame();
+        }
+      }
+
+      function updateMeter() {
+        const percent = (gameScore / TARGET_SCORE) * 100;
+        loveMeter.style.width = percent + "%";
+      }
+
+      function winGame() {
+        clearInterval(gameInterval);
+        isGameRunning = false;
+
+        const hearts = document.querySelectorAll(".falling-heart");
+        hearts.forEach((h) => h.remove());
+
+        setTimeout(() => {
+          rewardOverlay.classList.add("active");
+          rewardModal.classList.add("active");
+        }, 500);
+      }
+
+      closeRewardBtn.addEventListener("click", () => {
+        rewardOverlay.classList.remove("active");
+        rewardModal.classList.remove("active");
+        startGameBtn.innerText = "Main Lagi";
+        startGameBtn.style.display = "block";
+      });
+
+      // --- 5. SIMPLE FADE IN (Clean Layout) ---
+      const photoCards = document.querySelectorAll(".photo-card");
+
+      function handleParallax() {
+        photoCards.forEach((card) => {
+          const rect = card.getBoundingClientRect();
+          if (rect.top < window.innerHeight - 50) {
+            card.classList.add("visible");
+          }
+        });
+      }
+
+      // --- 6. INTERACTION EFFECTS ---
+      function createClickBurst(x, y) {
+        for (let i = 0; i < 20; i++) {
+          const part = document.createElement("div");
+          part.style.position = "fixed";
+          part.style.left = x + "px";
+          part.style.top = y + "px";
+          part.style.width = "8px";
+          part.style.height = "8px";
+          part.style.backgroundColor = "var(--gold-accent)";
+          part.style.borderRadius = "50%";
+          part.style.pointerEvents = "none";
+          part.style.zIndex = "9999";
+          document.body.appendChild(part);
+
+          const angle = Math.random() * Math.PI * 2;
+          const dist = Math.random() * 100 + 50;
+
+          const anim = part.animate(
+            [
+              { transform: "translate(0,0) scale(1)", opacity: 1 },
+              {
+                transform: `translate(${Math.cos(angle) * dist}px, ${
+                  Math.sin(angle) * dist
+                }px) scale(0)`,
+                opacity: 0,
+              },
+            ],
+            {
+              duration: 1000,
+              easing: "cubic-bezier(0, .9, .57, 1)",
+            }
+          );
+
+          anim.onfinish = () => part.remove();
+        }
+      }
+
+      document.addEventListener("click", (e) => {
+        if (
+          !e.target.closest(".game-container") &&
+          !e.target.closest(".envelope-container")
+        ) {
+          createClickBurst(e.clientX, e.clientY);
+        }
+      });
+    </script>
+  </body>
+</html>
