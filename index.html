@@ -1122,6 +1122,14 @@
       const TYPEWRITER_SPEED = 40;
       let isMainContentActive = false; // Flag to track state
 
+      // --- MUSIC CONFIGURATION ---
+      // GANTI URL DI BAWAH INI DENGAN LINK JUKEHOST ANDA
+      const music = new Audio(
+        "https://audio.jukehost.co.uk/QBRUEUvYX47DCROZ8xbT5IRbGQnIkTY7"
+      );
+      music.loop = true; // Musik akan looping
+      music.volume = 1; // Volume 50% (bisa disesuaikan 0.0 - 1.0)
+
       // --- 1. PARTICLE SYSTEM ---
       const canvas = document.getElementById("particle-canvas");
       const ctx = canvas.getContext("2d");
@@ -1233,7 +1241,13 @@
         envelope.querySelector(".envelope").classList.toggle("open");
         createClickBurst(window.innerWidth / 2, window.innerHeight / 2);
 
-        // 2. Transition
+        // 2. Play Music
+        music.play().catch((error) => {
+          // Handle autoplay policy - jika browser block autoplay
+          console.log("Autoplay blocked, user interaction required:", error);
+        });
+
+        // 3. Transition
         setTimeout(() => {
           introOverlay.style.opacity = 0;
 
