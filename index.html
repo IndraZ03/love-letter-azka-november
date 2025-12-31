@@ -3,7 +3,12 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Surat Hati Untukmu</title>
+    <title>Azka Love Letter November</title>
+    <!-- Favicon Love Icon -->
+    <link
+      rel="icon"
+      href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><path d='M50,85 C50,85 15,60 15,40 C15,25 28,15 42,15 C50,15 50,20 50,20 C50,20 50,15 58,15 C72,15 85,25 85,40 C85,60 50,85 50,85 Z' fill='%23d66d8e'/></svg>"
+    />
     <style>
       /* --- FONTS & PALETTE --- */
       @import url("https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700&family=Parisienne&family=Quicksand:wght@300;400;500&family=Great+Vibes&display=swap");
@@ -44,7 +49,7 @@
         color: var(--text-main);
         overflow-x: hidden;
         min-height: 100vh;
-        perspective: 1px; /* For Parallax */
+        /* HAPUS perspective: 1px; agar position: fixed bekerja dengan benar pada viewport */
       }
 
       /* --- CANVAS BACKGROUND --- */
@@ -224,6 +229,58 @@
         color: transparent;
         text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.05);
         margin-bottom: 0.5rem;
+      }
+
+      /* --- FLOATING GIRLFRIEND PHOTOS (FIXED POSITION) --- */
+      .floating-photo-container {
+        /* FIXED: Membuat elemen tetap di layar saat di-scroll */
+        position: fixed !important;
+        z-index: 9999; /* Pastikan Z-Index sangat tinggi */
+        width: 180px;
+        height: 180px;
+        border-radius: 50%;
+        overflow: hidden;
+        border: 4px solid var(--gold-accent);
+        box-shadow: 0 0 30px rgba(212, 175, 55, 0.5),
+          inset 0 0 20px rgba(255, 255, 255, 0.3);
+        animation: float-space 7s ease-in-out infinite;
+        pointer-events: none;
+        will-change: transform;
+        /* Tambahkan backface-visibility untuk performa rendering */
+        backface-visibility: hidden;
+        -webkit-font-smoothing: subpixel-antialiased;
+      }
+
+      .floating-photo-container img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+
+      /* Posisi Kanan Atas */
+      .photo-top-right {
+        top: 60px;
+        right: 40px;
+        animation-delay: 0s;
+      }
+
+      /* Posisi Kiri Bawah */
+      .photo-bottom-left {
+        bottom: 40px;
+        left: 40px;
+        animation-delay: 3.5s;
+      }
+
+      @keyframes float-space {
+        0% {
+          transform: translateY(0) rotate(0deg);
+        }
+        50% {
+          transform: translateY(-20px) rotate(3deg);
+        }
+        100% {
+          transform: translateY(0) rotate(0deg);
+        }
       }
 
       /* --- THE SCROLL (Love Letter) --- */
@@ -592,6 +649,44 @@
         animation: pulse-soft 1s infinite;
       }
 
+      /* --- BONUS GAME STYLES --- */
+      .memory-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 15px;
+        max-width: 400px;
+        margin: 20px auto;
+      }
+
+      .memory-card {
+        aspect-ratio: 1;
+        background: var(--primary-pink);
+        border-radius: 10px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 2rem;
+        color: transparent;
+        transition: all 0.3s;
+        user-select: none;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      }
+
+      .memory-card.flipped,
+      .memory-card.matched {
+        background: white;
+        color: var(--deep-rose);
+        border: 2px solid var(--deep-rose);
+        transform: rotateY(180deg);
+      }
+
+      .memory-card.matched {
+        background: #d4f7d4; /* Hijau muda */
+        border-color: #2e8b57;
+        pointer-events: none;
+      }
+
       /* --- ANIMATIONS --- */
       @keyframes pulse {
         0%,
@@ -662,6 +757,26 @@
         .flap {
           border-width: 95px 130px 0 130px;
         }
+
+        /* Mobile adjustment for celestial photos */
+        .floating-photo-container {
+          width: 90px; /* Ukuran lebih kecil di HP agar tidak menutupi konten */
+          height: 90px;
+          border-width: 2px;
+        }
+        .photo-top-right {
+          top: 20px;
+          right: 15px;
+        }
+        .photo-bottom-left {
+          bottom: 20px;
+          left: 15px;
+        }
+
+        .memory-grid {
+          grid-template-columns: repeat(3, 1fr); /* 3 kolom di HP */
+          gap: 10px;
+        }
       }
     </style>
   </head>
@@ -679,16 +794,34 @@
           <div class="envelope-bottom"></div>
         </div>
       </div>
-      <p class="click-hint">Klik untuk Membuka</p>
+      <p class="click-hint">Untuk Azkayangku, klik buat buka</p>
     </div>
 
     <div class="container" id="main-content" style="display: none">
+      <!-- 
+        FLOATING GIRLFRIEND PHOTOS (Fixed Position)
+        Disimpan di dalam #main-content agar muncul BERSAMAAN setelah amplop dibuka,
+        tetapi menggunakan css 'position: fixed' agar tetap menempel di layar saat discroll.
+      -->
+
+      <!-- KANAN ATAS -->
+      <div class="floating-photo-container photo-top-right">
+        <!-- GANTI URL DI BAWAH INI DENGAN FOTO PACAR ANDA -->
+        <img src="1765700507867.png" alt="Foto Pacar Mengambang 1" />
+      </div>
+
+      <!-- KIRI BAWAH -->
+      <div class="floating-photo-container photo-bottom-left">
+        <!-- GANTI URL DI BAWAH INI DENGAN FOTO PACAR ANDA -->
+        <img src="1765700489815.png" alt="Foto Pacar Mengambang 2" />
+      </div>
+
       <header>
-        <h1>Kisah Cinta Kita</h1>
+        <h1>Love Letter November</h1>
         <p
           style="letter-spacing: 2px; color: var(--deep-rose); margin-top: 10px"
         >
-          Selamanya & Abadi
+          Untuk Salsabila Azka Ramadhani
         </p>
       </header>
 
@@ -706,14 +839,14 @@
       </div>
 
       <div style="text-align: center; margin-bottom: 5rem">
-        <button class="reveal-btn" id="read-letter-btn">Buka Surat</button>
+        <button class="reveal-btn" id="read-letter-btn">Baca Surat</button>
       </div>
 
       <!-- Mini Game Section -->
       <section class="game-section">
-        <h2 class="game-title">Tangkap Cintaku</h2>
+        <h2 class="game-title">Maen Game Dulu Yank</h2>
         <p style="margin-bottom: 2rem; color: var(--text-main)">
-          Kumpulkan 10 hati untuk membuka pesan rahasia!
+          Tembak-tembakin ajh
         </p>
 
         <div class="game-container" id="game-area">
@@ -724,7 +857,7 @@
             </div>
           </div>
 
-          <button class="game-start-btn" id="start-game-btn">Mulai Main</button>
+          <button class="game-start-btn" id="start-game-btn">Mainin</button>
         </div>
       </section>
 
@@ -739,69 +872,161 @@
             margin-bottom: 3rem;
           "
         >
-          Momen Indah
+          Memories of November AzkaIndra
         </h2>
 
         <div class="collage-grid">
           <!-- Photo 1 -->
           <div class="photo-card">
             <div class="photo-frame">
-              <img
-                src="https://images.unsplash.com/photo-1516589178581-6cd7833ae3b2?auto=format&fit=crop&w=600&q=80"
-                alt="Love"
-              />
+              <img src="IMG_6943.jpg" alt="Love" />
             </div>
-            <div class="caption">Hari pertama kita bertemu</div>
+            <div class="caption">Date di Kanaraaa</div>
           </div>
 
           <!-- Photo 2 -->
           <div class="photo-card">
             <div class="photo-frame">
-              <img
-                src="https://images.unsplash.com/photo-1518199266791-5375a83190b7?auto=format&fit=crop&w=600&q=80"
-                alt="Love"
-              />
+              <img src="IMG_6778.jpg" alt="Maem bakmi dan bakpao telur bebek" />
             </div>
-            <div class="caption">Petualangan bersama</div>
+            <div class="caption">
+              Maem bakmiii sama bakpao telur asin wenakk
+            </div>
           </div>
 
           <!-- Photo 3 -->
           <div class="photo-card">
             <div class="photo-frame">
-              <img
-                src="https://images.unsplash.com/photo-1523438885200-e635ba2c371e?auto=format&fit=crop&w=600&q=80"
-                alt="Love"
-              />
+              <img src="IMG_7003.jpg" alt="Love" />
             </div>
-            <div class="caption">Tempat ternyamanku</div>
+            <div class="caption">Maemmm di laobannnn</div>
           </div>
         </div>
       </section>
+
+      <!-- BUTTON BONUS GAME -->
+      <div style="text-align: center; margin: 4rem 0">
+        <button id="bonus-game-btn" class="reveal-btn">
+          Pencet ini kalo cayang sm aq
+        </button>
+      </div>
     </div>
 
     <!-- Hidden Source Text for Typewriter -->
     <div id="source-text" style="display: none">
-      <p>Sayangku,</p>
+      <p>ayangggkuuuuu azcutee cantikk,</p>
       <p>
-        Sejak pertama kali kita bertemu, duniaku menjadi penuh warna yang tak
-        pernah kubayangkan sebelumnya. Kamu adalah angin sejuk di hari yang
-        panas, ketenangan di dunia yang bising, dan melodi indah yang selalu
-        didengar hatiku.
+        sampe detik love letter ini dikirim, aku masi sayanggg bangettttt sama
+        kamuuu. gapernah ada rasa menyesal selama aku jadi pacar kamuuuuu. kamu
+        bener bener ngubah hidup aku jadi lebih hidup jadi lebih lebih hepiiii.
+        jauh. apa yang aku rasain sekarang jauh lebih baik daripada dulu.
+        harusnya aku deketin kamu dari lama. ternyata punya pacar kaya kamu
+        semenyenangkan ituu. gapeduli kamu udah ngambek berapa kaliii. tapi
+        waktu liatttt kamu rasanyaaaaa aku sayanggggg banget sama kamuu❣️❣️❣️ 💖
       </p>
+
       <p>
-        Setiap tawa yang kita bagi menjadi kenangan favoritku, dan setiap
-        keheningan di antara kita berbicara lebih lantang daripada kata-kata.
-        Aku sangat bersyukur memilikimu.
+        sayangku, love letter ini baru dikirim di desember jadi aku revisi
+        karena ternyata aku udah pengumuman penempatan. dan sudah beberapa kali
+        lagi aku revisi revisi. termasuk revisi waktu aku udah di balikpapan ky
+        skripsi ajh. maap yaahh baru kukirim desember. aku bener2 belum ada ide.
+        💌
       </p>
+
       <p>
-        Aku berjanji akan selalu ada di sampingmu, menggenggam tanganmu saat
-        jalan terasa sulit, dan merayakan setiap kemenangan bersamamu. Kamu
-        adalah mimpi yang jadi nyata.
+        hubungan kita di november bener bener nyadarin aku kalo aku harus mulai
+        ke kehidupan yang serius. aku udah ngenalin kamu ke ortu aku kamu juga
+        udah ngenalin aku ke ortu kamu. yang dulunya kamu bener-bener bimbang
+        banget buat ngenalin. yg dulunya kamu takut ngasi tau ortu kamu sampe
+        nangis karena bapak kamu bilang mintanya sesama dokter. ternyata di
+        november kita bisa lewatin itu semua. kamu bisa kenalin aku ke ortu
+        kamu. ternyata hal yang ditakutin ga kejadian. ortu kamu juga cukup
+        welcome si kalo menurut aku. apa yang kita takutkan ternyata ga
+        semenakutkan ituuu. aku seneng bisa ngobrol sama bapak ibu kamuuu. next
+        time semoga ak ngobrol buat nglamar kamu chuaksss🥴🥴🥴🥴 💞
       </p>
-      <p>Dengan segenap cintaku,<br />Milikmu Selamanya.</p>
+
+      <p>
+        Di november kemarin, kita ketemu di pemalang. jujur aku selalu
+        overexcited kalo udah sekota sama kamuu. mintanya ketemu teruss sampe
+        malah takut sendiri ortu kamu risih. apalagi waktu dibilangin jangan
+        sore sore nanti ujann😭😭😭😭. aku ovt jir takutnya kemarin itu ak
+        ngepulangin kamu kesorean tapi emang kesorean sih. tapi kan kita jarang
+        ketemuu😭😭😭😭 harus manfaatin waktu sebaik baik baik baik baikkkk
+        mungkinnnn. 💗
+      </p>
+
+      <p>
+        jujur pemberkasan cpns aku juga ga keurus wkwkwk aku bener bener tes
+        kesehatan di hari terakhir banget 1 hari kesempatan. kalo dokternya
+        gaada gabisa di hari lain. tapi ternyata juga aku bisa ngelewatin
+        pemberkasan ituuuu. kita masi bisa jalan jalan. makan bakmii wenakkk.
+        photobox, main ps, gitaran di pantai (walaupun senarnya putus sich
+        (bukan salah kamu salah gitar)). 1 per 1 wishlist kita terwujudddd
+        hihihiiii senenggh bangettttt aku jadi makin sayangggg bamgett sama
+        kamuuuuuuu. 🥰
+      </p>
+
+      <p>
+        makin hari kamu makin cantik sayang. apalagi kalo udah pas vece tingkah
+        lakunya gemes gemes gituu. aku sampe gatega bilang penempatan aku dimana
+        krna kamu lagi hepi hepinyaaa. aku pengen liat kamu senyum terus. ya
+        memang aku kesel kalo didiemin kamuu. soalnya aku merasa kurang gitu
+        kalo gadapet perhatian kamuu. tapi gapapaaa. aku gamasalahh kamu kayak
+        gituu. tolonggg kamu boleh cuekin akuu asal hubungan kita tetap ada
+        yahh🥺🥺🥺 beb aku gatau. seburuk apa nanti keadaan aku kalo kita
+        udahan. gapapa kamu jawab apa adanyaaaa aku tetep akan jadi bucin kamuuu
+        seterus terus terusnyaaaaaaaaa. (ditulis after pengumuman penempatan) 💓
+      </p>
+
+      <p>
+        Sayanggkuuu,,🥺🥺🥺🥺 gapapa ya kita kepisah duluuuuu. nanti kalo udah
+        nikah puas puasinnnn pelukan barengggg puas puasin jajan barenggg puas
+        puasin makan barengggggg, puas puasin ciuman barengggggggggg. kita
+        gabisa ngontrol keadaan kita sekarang gimanaaaa. tapi kita bisa
+        rencanain buat masa depan. kita bisa usahain masa depann. yang penting
+        kita saling cintaaaa kita saling percayaaaa kalo di ujungnya kita bakal
+        hidup sama sama. kita bakal nikahh hidup bareng. 💍
+      </p>
+
+      <p>
+        tolong percaya sama aku. sampai detik ini aku masi gaterima buat
+        penempatan di sini. aku selalu ngusahain buat pindahh.
+        senyaman-nyamannya lingkungan aku di sini, sebaik-baiknya pegawai sinii.
+        tetep. 🤍
+      </p>
+
+      <p>
+        Sayang, kita udah ngenalin ke masing masing orang tua kita. akuuu juga
+        bener benerr pengen seriusss sama kamuu pengen hidup bareng sama kamuuu.
+        sejak aku mulai kerja aku udah mulai mikirin ini nanti nikah gimana
+        yaaa. waktu aku kuliah dulu rasanya aku lebih boros bangett. waktu kerja
+        aku mulai sadar kalo waktu nikah itu makin deketttt. dan aku emang harus
+        siapin dari sekarangg gabisa dadakan. 💖
+      </p>
+
+      <p>
+        aku minta tolongg kasi aku waktu buat nabung duluuu. yaaa buat
+        semuaaanyaa stabil dulu. jadi target nikah kita jadi realistis. aku
+        rencananya kalo uang gaji bmkg bakal kutabung sama buat cicil mahar
+        emas. nanti aku kasi tau ke kamu kok berkalaaa. tabungan aku udah
+        berapaaa. 💞
+      </p>
+
+      <p>
+        nah kalo ngedate mungkin aku bakal ngambil uang dari side job ya
+        sayangggg. dari ngajar lefranttt ak ada rencana buat ngojek juga kalo
+        ada waktu sih. jadi sementara aku izin nabung dulu ya sayangggg. aku
+        selalu mikirin kamu kapanpun kokkk. aku janjiii selagi kamu masi cinta
+        ke akuu. aku bakal usahain semuanyaaaa. balik lagi, aku pengen rencanain
+        nikah kita dari sekarang. di ujung love letter ini ayokk kita rencanain
+        bareng bareng yukk. 💑
+      </p>
+
+      <p>My heart belongs to you<br />indra 💕</p>
     </div>
 
-    <!-- Game Reward Modal -->
+    <!-- Game Reward Modal (Catch Love) -->
     <div class="reward-overlay" id="reward-overlay"></div>
     <div class="reward-modal" id="reward-modal">
       <div
@@ -810,12 +1035,85 @@
         ♥
       </div>
       <p class="reward-quote">
-        "Aku mencintaimu bukan hanya karena siapa kamu, tapi karena siapa aku
-        saat bersamamu."
+        "Aku janjii akan jadiii bucin kamuu seterusssnyaaaa dan akan terus
+        berusahaaa buat pindah ke jawaaaa dan kemudian tujuan ak nikah sama
+        salsabila azka ramadhani."
       </p>
-      <button class="close-reward-btn" id="close-reward">
-        Lanjut Mencintai
+      <button class="close-reward-btn" id="close-reward">Lopyu</button>
+    </div>
+
+    <!-- Bonus Game Modal (Memory) -->
+    <div class="reward-overlay" id="bonus-overlay"></div>
+    <div class="reward-modal" id="bonus-modal" style="width: 500px">
+      <h2 style="color: var(--deep-rose); font-family: 'Parisienne', cursive">
+        Cocokkan Hati Azka Indra
+      </h2>
+      <p>Cocokin bebeeeee</p>
+      <div class="memory-grid" id="memory-grid">
+        <!-- Cards will be injected here -->
+      </div>
+      <button
+        class="close-reward-btn"
+        id="close-bonus"
+        style="margin-top: 10px"
+      >
+        Tutup
       </button>
+    </div>
+
+    <!-- Memory Game Win Modal -->
+    <div class="reward-overlay" id="memory-win-overlay"></div>
+    <div class="reward-modal" id="memory-win-modal">
+      <div
+        style="
+          font-size: 4rem;
+          color: var(--gold-accent);
+          margin-bottom: 1rem;
+          animation: pulse 1.5s infinite;
+        "
+      >
+        🎉❤️🎉
+      </div>
+      <h2
+        style="
+          color: var(--deep-rose);
+          font-family: 'Parisienne', cursive;
+          font-size: 2.5rem;
+          margin-bottom: 1rem;
+        "
+      >
+        Yeyeye Menanggg!
+      </h2>
+      <p class="reward-quote">Kamu selalu Menang di Hati aq! ❤️</p>
+      <p
+        style="
+          color: var(--text-main);
+          font-size: 1rem;
+          margin: 1.5rem 0;
+          line-height: 1.6;
+        "
+      >
+        Mau kan kamu sama aku sampai nikah dan seterus-terusnyaaa????
+      </p>
+      <div
+        style="
+          display: flex;
+          gap: 1rem;
+          justify-content: center;
+          flex-wrap: wrap;
+        "
+      >
+        <button class="close-reward-btn" id="close-memory-win">
+          Mauuuu bingitttttttt!!!! ❤️
+        </button>
+        <button
+          class="close-reward-btn"
+          id="wa-redirect"
+          style="background: var(--deep-rose); color: white; border: none"
+        >
+          y mw 💌
+        </button>
+      </div>
     </div>
 
     <script>
@@ -1099,7 +1397,7 @@
         startGameBtn.style.display = "block";
       });
 
-      // --- 5. SIMPLE FADE IN (Clean Layout) ---
+      // --- 5. PARALLAX EFFECT ---
       const photoCards = document.querySelectorAll(".photo-card");
 
       function handleParallax() {
@@ -1111,7 +1409,112 @@
         });
       }
 
-      // --- 6. INTERACTION EFFECTS ---
+      // --- 6. BONUS MEMORY GAME ---
+      const bonusBtn = document.getElementById("bonus-game-btn");
+      const bonusOverlay = document.getElementById("bonus-overlay");
+      const bonusModal = document.getElementById("bonus-modal");
+      const closeBonusBtn = document.getElementById("close-bonus");
+      const memoryGrid = document.getElementById("memory-grid");
+
+      const emojis = ["❤️", "🌹", "💍", "🧸", "💌", "🍫"];
+      let memoryCards = [...emojis, ...emojis]; // Pairs
+      let flippedCards = [];
+      let matchedPairs = 0;
+
+      bonusBtn.addEventListener("click", () => {
+        bonusOverlay.classList.add("active");
+        bonusModal.classList.add("active");
+        initMemoryGame();
+      });
+
+      closeBonusBtn.addEventListener("click", () => {
+        bonusOverlay.classList.remove("active");
+        bonusModal.classList.remove("active");
+      });
+
+      function initMemoryGame() {
+        memoryGrid.innerHTML = "";
+        flippedCards = [];
+        matchedPairs = 0;
+
+        // Shuffle
+        memoryCards.sort(() => 0.5 - Math.random());
+
+        memoryCards.forEach((emoji) => {
+          const card = document.createElement("div");
+          card.classList.add("memory-card");
+          card.dataset.value = emoji;
+          card.innerText = emoji; // Actually hidden by CSS color transparent
+
+          card.addEventListener("click", flipCard);
+          memoryGrid.appendChild(card);
+        });
+      }
+
+      function flipCard() {
+        if (flippedCards.length < 2 && !this.classList.contains("flipped")) {
+          this.classList.add("flipped");
+          flippedCards.push(this);
+
+          if (flippedCards.length === 2) {
+            checkMatch();
+          }
+        }
+      }
+
+      function checkMatch() {
+        const [card1, card2] = flippedCards;
+
+        if (card1.dataset.value === card2.dataset.value) {
+          card1.classList.add("matched");
+          card2.classList.add("matched");
+          flippedCards = [];
+          matchedPairs++;
+
+          if (matchedPairs === emojis.length) {
+            setTimeout(() => {
+              showMemoryWinModal();
+            }, 500);
+          }
+        } else {
+          setTimeout(() => {
+            card1.classList.remove("flipped");
+            card2.classList.remove("flipped");
+            flippedCards = [];
+          }, 1000);
+        }
+      }
+
+      // Memory Game Win Modal Functions
+      const memoryWinOverlay = document.getElementById("memory-win-overlay");
+      const memoryWinModal = document.getElementById("memory-win-modal");
+      const closeMemoryWinBtn = document.getElementById("close-memory-win");
+      const waRedirectBtn = document.getElementById("wa-redirect");
+
+      function showMemoryWinModal() {
+        memoryWinOverlay.classList.add("active");
+        memoryWinModal.classList.add("active");
+      }
+
+      function hideMemoryWinModal() {
+        memoryWinOverlay.classList.remove("active");
+        memoryWinModal.classList.remove("active");
+      }
+
+      closeMemoryWinBtn.addEventListener("click", () => {
+        window.location.href =
+          "https://docs.google.com/spreadsheets/d/1UIhlPaC_TT0Q5g7e-xizr_IceF-0boOrZT-aSyQAC5U/edit?gid=905358578#gid=905358578";
+      });
+
+      waRedirectBtn.addEventListener("click", () => {
+        window.location.href =
+          "https://docs.google.com/spreadsheets/d/1UIhlPaC_TT0Q5g7e-xizr_IceF-0boOrZT-aSyQAC5U/edit?gid=905358578#gid=905358578";
+      });
+
+      // Close modal when clicking overlay
+      memoryWinOverlay.addEventListener("click", hideMemoryWinModal);
+
+      // --- 7. INTERACTION EFFECTS ---
       function createClickBurst(x, y) {
         for (let i = 0; i < 20; i++) {
           const part = document.createElement("div");
@@ -1152,7 +1555,8 @@
       document.addEventListener("click", (e) => {
         if (
           !e.target.closest(".game-container") &&
-          !e.target.closest(".envelope-container")
+          !e.target.closest(".envelope-container") &&
+          !e.target.closest(".memory-card")
         ) {
           createClickBurst(e.clientX, e.clientY);
         }
